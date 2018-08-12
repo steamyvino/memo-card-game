@@ -184,11 +184,9 @@ public class Memo extends JFrame
                 createBoard();
                 panelBoard.revalidate();
                 btnStart.setEnabled(false);
-                name1.setActivePlayerName();  //Player one first (BOLD font)
-        
+                name1.setActivePlayerName();  //Player one first (BOLD font)       
             }
-        });
-    
+        });   
     }
 
     void createBoard()
@@ -216,10 +214,8 @@ public class Memo extends JFrame
           for(int i=0;i<icons.length;i++)
           {  
               cards[i]=new ImageButton(icons[i]);
-              panelBoard.add(panelBoard.add(cards[i]));    
-               
+              panelBoard.add(panelBoard.add(cards[i]));                 
           }     
-
     }
   
     static void shuffleIcons(ImageIcon[] icons)
@@ -234,8 +230,7 @@ public class Memo extends JFrame
             icons[i] = a;
         }
     }
-    
-    
+      
     public void chooseAvatar(ActionEvent ae) 
     {
          if (avatarChooser==5)
@@ -244,8 +239,7 @@ public class Memo extends JFrame
              avatarChooser++;
 
          ((JButton)ae.getSource()).setText("");
-         ((JButton)ae.getSource()).setIcon(avatars[avatarChooser]);
-                
+         ((JButton)ae.getSource()).setIcon(avatars[avatarChooser]);            
     }
     
     /** 
@@ -254,22 +248,17 @@ public class Memo extends JFrame
      */
     
     void revealCard(JButton btn,Icon icon)
-    {
-        
+    {       
        if(!waitigForSecondCard)
         {
-
            firstCardReveal(btn,icon);
-
         }
         else if(waitigForSecondCard)
         {
            secondCardReveal(btn,icon);
-        } 
-    
+        }     
     }
     
-  
     void firstCardReveal(JButton btn,Icon icon)
     {   
         showChard(btn,icon);      
@@ -278,12 +267,10 @@ public class Memo extends JFrame
     }
     void secondCardReveal(JButton btn,Icon icon)
     {
-    
           showChard(btn,icon);
           waitigForSecondCard=false;  
           checkMatch(btn,icon);
-         
-    
+
     }
     
     void showChard(JButton btn,Icon icon)
@@ -297,8 +284,7 @@ public class Memo extends JFrame
     /** 
      * Checking of selected card matches
      * 
-     */
-    
+     */   
     void checkMatch(JButton btn,Icon icon)
     {
         /**
@@ -311,48 +297,35 @@ public class Memo extends JFrame
             {
                 @Override
                 public void actionPerformed(ActionEvent e) 
-                {
-                   
+                {               
                      processMatchedCards(matchIconName);   
                      matchIconName="";
                      enableCards(btn);
-
-
                 }
-
-            });
-                
+            });                
                 tm.start();
                 tm.setRepeats(false);
-
-            }
-        
+            }      
         /**
          * selected cards do not match
          */
          else if(!getName().equals(matchIconName))
-         {
-           
+         {           
             disableCards(btn);
             Timer tm = new Timer(2000,new ActionListener() 
             {
                 @Override
                 public void actionPerformed(ActionEvent e) 
-                {
-                   
+                {                 
                     coverCard();
                     enableCards(btn);
                     matchIconName="";
                     changeTurn();
-
                 }
-
-            });
-                                
+            });                                
             tm.setRepeats(false);
             tm.start();                       
-         }
-    
+         }  
     }
     
     /** 
@@ -387,7 +360,6 @@ public class Memo extends JFrame
               }        
           }      
     }
-     
 
     void processMatchedCards(String MatchingName)
     {
@@ -399,7 +371,6 @@ public class Memo extends JFrame
                   setPoints();
               }                 
           }      
-   
     }
     /**
      * 
@@ -411,12 +382,10 @@ public class Memo extends JFrame
          card.setIcon(matchedCardImage);
          card.setDisabledIcon(card.getIcon());
          card.setEnabled(false);
-
     }
     
     void setPoints()
     {
-
         if (playerOneTurn)
         {
             pointsPlayer1++;
@@ -426,11 +395,9 @@ public class Memo extends JFrame
         {
             pointsPlayer2++;
             scorePlayer2.setText(Integer.toString(pointsPlayer2));
-        }   
-    
+        }    
         matchedCards=matchedCards+1;
-        checkIfGameOver();
-        
+        checkIfGameOver();     
     }
     
     /**
@@ -468,9 +435,8 @@ public class Memo extends JFrame
      */
     void checkIfGameOver()
     {
-    if (matchedCards==16) 
-          endGame();
-    
+        if (matchedCards==16) 
+              endGame();  
     }
     
     void endGame()
@@ -492,8 +458,7 @@ public class Memo extends JFrame
     }
     
     void resetTopPanelFields()
-    {
-        
+    {    
          name1.resetNameFields();
          name2.resetNameFields();
          name1.setWaitingPlayerName();
@@ -513,17 +478,13 @@ public class Memo extends JFrame
          panelBoard.removeAll();
          panelBoard.repaint();
          btnStart.setEnabled(true);
-         matchedCards=0;
-
-    
+         matchedCards=0; 
     }
     
 
     public static void main(String[] args) 
     {
- 
         new Memo().setVisible(true);
-   
     }
 }
 
