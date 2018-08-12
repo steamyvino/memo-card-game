@@ -184,7 +184,8 @@ public class Memo extends JFrame
                 createBoard();
                 panelBoard.revalidate();
                 btnStart.setEnabled(false);
-                name1.setActivePlayerName();  //Player one first (BOLD font)       
+                name1.setActivePlayerName();  //Player one first (BOLD font)
+        
             }
         });   
     }
