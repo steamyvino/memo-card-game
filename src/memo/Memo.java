@@ -4,23 +4,21 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-//Checking git and creating conflict 
-//Checking git and create come conflitcts
 
 
-public class Memo extends JFrame implements MouseListener
+
+public class Memo extends JFrame 
 {
 
-    JPanel panel = new JPanel();
+    JPanel panelBoard = new JPanel();
     ImageIcon icons[] = new ImageIcon[16];
-    ImageButton[] buttons= new ImageButton[icons.length];
+    ImageButton[] cards= new ImageButton[icons.length];
     ImageIcon coveredCardImage = new ImageIcon("resources/back.png");
     ImageIcon matchedCardImage = new ImageIcon("resources/match.png");
     
@@ -32,10 +30,10 @@ public class Memo extends JFrame implements MouseListener
      
     JPanel panelTop = new JPanel();
     JButton btnStart = new JButton("Start");
-    JTextField name1 = new JTextField("<Player 1 name>",10);
-    JTextField name2 = new JTextField("<Player 1 name>",10);
-    JButton playerChoice1 = new JButton("Choose Avatar");
-    JButton playerChoice2 = new JButton("Choose Avatar");
+    NameField name1 = new NameField("<Player 1 name>");
+    NameField name2 = new NameField("<Player 1 name>");
+    Avatar playerAvatar1 = new Avatar("Choose Avatar");
+    Avatar playerAvatar2 = new Avatar("Choose Avatar");
     JLabel scorePlayer1 = new JLabel("  ");
     JLabel scorePlayer2 = new JLabel("  ");
       
@@ -52,16 +50,100 @@ public class Memo extends JFrame implements MouseListener
         super("Memo");
         this.setBounds(300,300,750,828);
         this.setDefaultCloseOperation(3);
-        initComponents();                
+        initComponents();  
+        initTopPanel();
     }
     
+    /**
+     * Inner class of Avatar Button
+     */
+    class Avatar extends JButton
+    {
+        Avatar(String text)
+        {
+            super(text);
+            setBorder(new javax.swing.border.LineBorder(new java.awt.Color(35, 88, 33), 3, true));
+            setPreferredSize(new Dimension(128,128));
+            setBackground(Color.white);         
+            this.addActionListener(new ActionListener() 
+            {
+                @Override
+                public void actionPerformed(ActionEvent ae)
+                {
+                    chooseAvatar(ae);
+                }
+            });         
+        }
+    }
+    /**
+     * Inner class of Player name textArea
+     */
+    class NameField extends JTextField
+    {
+        String defaultText;
+        NameField thisNameField = this;
+        NameField(String text)
+        {   
+            super(text,10);
+            defaultText=text;         
+            setFont(new Font("Lucida", 0, 12));
+            setDisabledTextColor(Color.BLACK);     
+            this.addMouseListener(new MouseAdapter() 
+            {
+                public void mouseClicked(MouseEvent me)
+                {
+                   if (thisNameField.isEnabled())
+                   thisNameField.setText("");
+                }
+            });  
+        }
+        
+        void resetNameFields()
+        {
+            this.setText(defaultText);     
+        }
+        
+        void setActivePlayerName()
+        {
+            setFont(new Font("Lucida", 1, 12));  
+        }
+        
+        void setWaitingPlayerName()
+        {   
+            setFont(new Font("Lucida", 0, 12));    
+        }  
+    }
+    
+    /**
+     * Inner class of cards 
+     */
+    class ImageButton extends JButton
+    {
+        ImageButton(Icon icon )
+        {    
+            setIcon(coveredCardImage);     
+            setBackground(Color.white);
+            setName(icon.toString());
+            setFocusable(false);
+            addActionListener(new ActionListener()            
+            {
+                @Override
+                 public void actionPerformed(ActionEvent e) 
+                 { 
+                    revealCard((JButton)e.getSource(),icon);    
+                 }
+            });    
+        }               
+    }
+    
+
     void initComponents()
     {
-        this.getContentPane().add(panel);
+        this.getContentPane().add(panelBoard);
         this.getContentPane().add(panelTop,BorderLayout.NORTH);
         
-        panel.setBackground(Color.white);
-        panel.add(logo,BorderLayout.CENTER);
+        panelBoard.setBackground(Color.white);
+        panelBoard.add(logo,BorderLayout.CENTER);
         logo.setIcon(logoImage);
         
         avatars[0] = new ImageIcon("resources/boy1.png");
@@ -70,9 +152,13 @@ public class Memo extends JFrame implements MouseListener
         avatars[3] = new ImageIcon("resources/girl2.png");
         avatars[4] = new ImageIcon("resources/girl2.png");
         avatars[5] = new ImageIcon("resources/girl4.png");
-                                   
+
+    }
+      
+    void initTopPanel()
+    {
         panelTop.setBackground(Color.white);
-        panelTop.add(playerChoice1);
+        panelTop.add(playerAvatar1);
         panelTop.add(name1);
         panelTop.add(scorePlayer1);
         panelTop.add(Box.createHorizontalStrut(50));
@@ -80,76 +166,35 @@ public class Memo extends JFrame implements MouseListener
         panelTop.add(Box.createHorizontalStrut(50));
         panelTop.add(scorePlayer2);
         panelTop.add(name2);
-        panelTop.add(playerChoice2);
+        panelTop.add(playerAvatar2);
         
-        name1.setMinimumSize(new Dimension(150,10));
-        name2.setMinimumSize(new Dimension(150,10));
-        name1.setFont(new Font("Lucida", 0, 12));
-        name2.setFont(new Font("Lucida", 0, 12));
-                
-        playerChoice1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(35, 88, 33), 3, true));
-        playerChoice2.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(35, 88, 33), 3, true));
-               
-        playerChoice1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                chooseAvatar(ae);
-            }
-        });
-        playerChoice2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                chooseAvatar(ae);
-            }
-        });
-      
         btnStart.setBackground(Color.white);
-        playerChoice1.setPreferredSize(new Dimension(128,128));
-        playerChoice1.setBackground(Color.white);
-        playerChoice2.setPreferredSize(new Dimension(128,128));
-        playerChoice2.setBackground(Color.white);
-                   
-        name1.addMouseListener(this);
-        name2.addMouseListener(this);
-                
+      
         btnStart.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                playerChoice1.setDisabledIcon(playerChoice1.getIcon());
-                playerChoice2.setDisabledIcon(playerChoice2.getIcon());
+                name1.setEnabled(false);
+                name2.setEnabled(false);
+               
+                playerAvatar1.setDisabledIcon(playerAvatar1.getIcon());
+                playerAvatar2.setDisabledIcon(playerAvatar2.getIcon());
               
-                playerChoice1.setEnabled(false);
-                playerChoice2.setEnabled(false);
+                playerAvatar1.setEnabled(false);
+                playerAvatar2.setEnabled(false);
                 createBoard();
-                panel.revalidate();
+                panelBoard.revalidate();
                 btnStart.setEnabled(false);
-                name1.setFont(new Font("Lucida", 1, 12));  //Player one first (BOLD font)
+                name1.setActivePlayerName();  //Player one first (BOLD font)
         
             }
         });
+    
+    }
 
-    }
-      
-    void setPoints()
-    {
-    
-        if (playerOneTurn)
-        {
-            pointsPlayer1++;
-            scorePlayer1.setText(Integer.toString(pointsPlayer1));
-        }
-        else if(!playerOneTurn)
-        {
-            pointsPlayer2++;
-            scorePlayer2.setText(Integer.toString(pointsPlayer2));
-        }   
-    
-    }
-    
     void createBoard()
     {
-          panel.remove(logo);
-          panel.setLayout(new GridLayout(4,4));
+          panelBoard.remove(logo);
+          panelBoard.setLayout(new GridLayout(4,4));
           icons[0] = new ImageIcon("resources/rune1.png");
           icons[1] = new ImageIcon("resources/rune1.png");
           icons[2] = new ImageIcon("resources/rune2.png");
@@ -170,8 +215,8 @@ public class Memo extends JFrame implements MouseListener
           shuffleIcons(icons);
           for(int i=0;i<icons.length;i++)
           {  
-              buttons[i]=new ImageButton(icons[i]);
-              panel.add(panel.add(buttons[i]));    
+              cards[i]=new ImageButton(icons[i]);
+              panelBoard.add(panelBoard.add(cards[i]));    
                
           }     
 
@@ -190,32 +235,78 @@ public class Memo extends JFrame implements MouseListener
         }
     }
     
+    
+    public void chooseAvatar(ActionEvent ae) 
+    {
+         if (avatarChooser==5)
+             avatarChooser=0;
+         else
+             avatarChooser++;
+
+         ((JButton)ae.getSource()).setText("");
+         ((JButton)ae.getSource()).setIcon(avatars[avatarChooser]);
+                
+    }
+    
+    /** 
+     * Player chooses card
+     * 
+     */
+    
+    void revealCard(JButton btn,Icon icon)
+    {
+        
+       if(!waitigForSecondCard)
+        {
+
+           firstCardReveal(btn,icon);
+
+        }
+        else if(waitigForSecondCard)
+        {
+           secondCardReveal(btn,icon);
+        } 
+    
+    }
+    
+  
     void firstCardReveal(JButton btn,Icon icon)
     {   
-        System.out.println("PIERWSZA");
-        btn.setEnabled(false);
-        btn.setIcon(icon);   
+        showChard(btn,icon);      
         waitigForSecondCard=true; 
-        matchIconName=icon.toString();
-        btn.setDisabledIcon(icon);
-       
-        System.out.println(icon.toString());
-        
+        matchIconName=icon.toString();        
     }
     void secondCardReveal(JButton btn,Icon icon)
     {
     
-        btn.setText("");
+          showChard(btn,icon);
+          waitigForSecondCard=false;  
+          checkMatch(btn,icon);
+         
+    
+    }
+    
+    void showChard(JButton btn,Icon icon)
+    {
         btn.setIcon(icon); 
         btn.setDisabledIcon(icon);
         btn.setEnabled(false);
-        System.out.println("DRUGA");
         System.out.println(icon.toString());
-        
-        waitigForSecondCard=false; 
+    }
+    
+    /** 
+     * Checking of selected card matches
+     * 
+     */
+    
+    void checkMatch(JButton btn,Icon icon)
+    {
+        /**
+         * selected cards match
+         */
         if(((ImageIcon)icon).getDescription().equals(matchIconName))
             {   
-                blockButtons(btn);
+                disableCards(btn);
                 Timer tm = new Timer(2000,new ActionListener() 
             {
                 @Override
@@ -224,7 +315,7 @@ public class Memo extends JFrame implements MouseListener
                    
                      processMatchedCards(matchIconName);   
                      matchIconName="";
-                     unblockButtons(btn);
+                     enableCards(btn);
 
 
                 }
@@ -235,18 +326,22 @@ public class Memo extends JFrame implements MouseListener
                 tm.setRepeats(false);
 
             }
+        
+        /**
+         * selected cards do not match
+         */
          else if(!getName().equals(matchIconName))
          {
            
-            blockButtons(btn);
+            disableCards(btn);
             Timer tm = new Timer(2000,new ActionListener() 
             {
                 @Override
                 public void actionPerformed(ActionEvent e) 
                 {
                    
-                    revertCard();
-                    unblockButtons(btn);
+                    coverCard();
+                    enableCards(btn);
                     matchIconName="";
                     changeTurn();
 
@@ -260,68 +355,96 @@ public class Memo extends JFrame implements MouseListener
     
     }
     
-    void checkMatch(JButton btn,Icon icon)
-    {
-        
-       if(!waitigForSecondCard)
-        {
-
-           firstCardReveal(btn,icon);
-
-        }
-        else if(waitigForSecondCard)
-        {
-            secondCardReveal(btn,icon);
-        } 
+    /** 
+     * Disables all card from clicking for the time of checking if the selected card match each other
+     * 
+     */
     
+    void disableCards(JButton secondbtn)
+    {  
+       for(int i=0;i<cards.length;i++)
+          {      
+              if(cards[i].getIcon().equals(coveredCardImage))
+              {
+                 cards[i].setDisabledIcon(cards[i].getIcon());
+                 cards[i].setEnabled(false);
+              }            
+          }       
     }
     
+    /** 
+     * Enables cards that left in play
+     * 
+     */
+     void enableCards(JButton secondbtn)
+    {
+       for(int i=0;i<cards.length;i++)
+          {  
+              if(cards[i].getIcon().equals(coveredCardImage))
+              {
+                 cards[i].setDisabledIcon(cards[i].getIcon());
+                 cards[i].setEnabled(true);
+              }        
+          }      
+    }
+     
+
     void processMatchedCards(String MatchingName)
     {
-      for(int i=0;i<buttons.length;i++)
+      for(int i=0;i<cards.length;i++)
           {  
-              if(buttons[i].getName().equals(MatchingName))
+              if(cards[i].getName().equals(MatchingName))
               {
-                 matchedCards=matchedCards+1;
-                 buttons[i].setIcon(matchedCardImage);
-                 buttons[i].setDisabledIcon(buttons[i].getIcon());
-                 buttons[i].setEnabled(false);
-                 setPoints();
+                  coverMatchedCard(cards[i]);      
+                  setPoints();
               }                 
-          }     
-      if (matchedCards==16) 
-          endGame();
+          }      
    
     }
-    
-    void endGame()
+    /**
+     * 
+     * Covering and disabling guessed cards
+     * 
+     */
+    void coverMatchedCard(ImageButton card)
     {
-         if(pointsPlayer1>pointsPlayer2)
-         {
-            JOptionPane.showMessageDialog(null, name1.getText()+" Wygrywa!Gratulacje!", "Koniec Gry", JOptionPane.INFORMATION_MESSAGE, playerChoice1.getIcon());   
-         }   
-         else if(pointsPlayer1<pointsPlayer2)
-         {
-            JOptionPane.showMessageDialog(null, name2.getText()+" Wygrywa! Gratulacje!", "Koniec Gry", JOptionPane.INFORMATION_MESSAGE, playerChoice2.getIcon());
-         }
-         else
-         {
-            JOptionPane.showMessageDialog(null, "REMIS! Gratulacje!", "Koniec Gry", JOptionPane.INFORMATION_MESSAGE);
-         }
-         
-         name1.setText("<Player 1 name>");
-         name1.setText("<Player 2 name>");
-         pointsPlayer1=0;
-         pointsPlayer2=0;
-         scorePlayer1.setText(" ");
-         scorePlayer2.setText(" ");
-         playerChoice1.setIcon(null);
-         playerChoice1.setText("Choose avatar");
-         playerChoice2.setIcon(null);
-         playerChoice2.setText("Choose avatar");
-         panel.removeAll();
-         panel.repaint();
-         btnStart.setEnabled(true);
+         card.setIcon(matchedCardImage);
+         card.setDisabledIcon(card.getIcon());
+         card.setEnabled(false);
+
+    }
+    
+    void setPoints()
+    {
+
+        if (playerOneTurn)
+        {
+            pointsPlayer1++;
+            scorePlayer1.setText(Integer.toString(pointsPlayer1));
+        }
+        else if(!playerOneTurn)
+        {
+            pointsPlayer2++;
+            scorePlayer2.setText(Integer.toString(pointsPlayer2));
+        }   
+    
+        matchedCards=matchedCards+1;
+        checkIfGameOver();
+        
+    }
+    
+    /**
+     * 
+     * Covering unguessed cards that are still in play
+     * 
+     */
+    void coverCard()
+    {
+        for(int i=0;i<cards.length;i++)
+              {   
+                  if(!cards[i].getIcon().equals(matchedCardImage))
+                     cards[i].setIcon(coveredCardImage);
+              }     
     }
     
     void changeTurn()
@@ -329,141 +452,78 @@ public class Memo extends JFrame implements MouseListener
        if(playerOneTurn)
        {
            playerOneTurn=false;
-           name1.setFont(new Font("Lucida", 0, 12));
-           name2.setFont(new Font("Lucida", 1, 12));
+           name1.setWaitingPlayerName();
+           name2.setActivePlayerName();
        }
        else
        {
            playerOneTurn=true;
-           name1.setFont(new Font("Lucida", 1, 12));
-           name2.setFont(new Font("Lucida", 0, 12));
+           name1.setActivePlayerName();
+           name2.setWaitingPlayerName();
        }
     }
     
-    void blockButtons(JButton secondbtn)
+    /**
+     * Change (matchedCards==2) if you want to end game after first match
+     */
+    void checkIfGameOver()
     {
-     
-       for(int i=0;i<buttons.length;i++)
-          {  
-              
-              if(buttons[i].getIcon().equals(coveredCardImage))
-              {
-                 buttons[i].setDisabledIcon(buttons[i].getIcon());
-                 buttons[i].setEnabled(false);
-              }   
-              
-               
-          }      
-        
+    if (matchedCards==16) 
+          endGame();
     
     }
     
-     void unblockButtons(JButton secondbtn)
+    void endGame()
     {
-      // secondbtn.setEnabled(false);
-       for(int i=0;i<buttons.length;i++)
-          {  
-              
-              if(buttons[i].getIcon().equals(coveredCardImage))
-              {
-                 buttons[i].setDisabledIcon(buttons[i].getIcon());
-                 buttons[i].setEnabled(true);
-              }   
-              
-               
-          }      
-        
-    
+         if(pointsPlayer1>pointsPlayer2)
+         {
+            JOptionPane.showMessageDialog(null, name1.getText()+" wins! Congratulations", "Game Over!", JOptionPane.INFORMATION_MESSAGE, playerAvatar1.getIcon());   
+         }   
+         else if(pointsPlayer1<pointsPlayer2)
+         {
+            JOptionPane.showMessageDialog(null, name2.getText()+" wins! Congratulations!", "Game Over!", JOptionPane.INFORMATION_MESSAGE, playerAvatar2.getIcon());
+         }
+         else
+         {
+            JOptionPane.showMessageDialog(null, "Its a draw! Congratulations!", "Game Over", JOptionPane.INFORMATION_MESSAGE);
+         }
+         
+         resetTopPanelFields();
     }
     
-    void revertCard()
+    void resetTopPanelFields()
     {
+        
+         name1.resetNameFields();
+         name2.resetNameFields();
+         name1.setWaitingPlayerName();
+         name2.setWaitingPlayerName();
+         scorePlayer1.setText(" ");
+         scorePlayer2.setText(" ");
+         playerAvatar1.setIcon(null);
+         playerAvatar1.setText("Choose avatar");
+         playerAvatar2.setIcon(null);
+         playerAvatar2.setText("Choose avatar");
+         name1.setEnabled(true);
+         name2.setEnabled(true);
+         playerAvatar1.setEnabled(true);
+         playerAvatar2.setEnabled(true);
+         pointsPlayer1=0;
+         pointsPlayer2=0;
+         panelBoard.removeAll();
+         panelBoard.repaint();
+         btnStart.setEnabled(true);
+         matchedCards=0;
 
-        for(int i=0;i<buttons.length;i++)
-              {   
-                  if(!buttons[i].getIcon().equals(matchedCardImage))
-                     buttons[i].setIcon(coveredCardImage);
-              }     
+    
     }
+    
 
-   
-    class ImageButton extends JButton
+    public static void main(String[] args) 
     {
-    
-        //String image;
-        
-        ImageButton(Icon icon )
-        {
-           
-            setIcon(coveredCardImage);     
-            setBackground(Color.white);
-            setName(icon.toString());
-            setFocusable(false);
-            addActionListener(new ActionListener() 
-                    
-            {
-                @Override
-                 public void actionPerformed(ActionEvent e) 
-                 {
-                    
-                    checkMatch((JButton)e.getSource(),icon);
-                    
-                }
-            });
-            
-        }
-                  
-    }
-    
-    
-    
-    public void chooseAvatar(ActionEvent ae) 
-    {
-             
-             if (avatarChooser==5)
-                 avatarChooser=0;
-             else
-                 avatarChooser++;
-             
-             ((JButton)ae.getSource()).setText("");
-             ((JButton)ae.getSource()).setIcon(avatars[avatarChooser]);
-                
-    }
-    
-    @Override
-    public void mouseClicked(MouseEvent me) {
-       ((JTextField)me.getSource()).setEditable(true);
-       ((JTextField)me.getSource()).setText(" ");
-       ((JTextField)me.getSource()).setCaretColor(Color.BLACK);
-    }
-
-    @Override
-    public void mousePressed(MouseEvent me) {
-        
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent me) {
-       
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent me) {
-        
-    }
-
-    @Override
-    public void mouseExited(MouseEvent me) {
-        ((JTextField)me.getSource()).getCaret().setVisible(false);
-        ((JTextField)me.getSource()).setEditable(false);
-        
-    }
-    
-    public static void main(String[] args) {
-        
+ 
         new Memo().setVisible(true);
    
     }
-    
 }
 
